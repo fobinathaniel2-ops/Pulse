@@ -13,17 +13,26 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: { channel: stable, cache: true }
 
-      - name: Unpack project and generate Android scaffold
+      - name: Unpack project
         run: |
           unzip -q pulse.zip
-          flutter create app --project-name pulse --org com.example --platforms android
+          ls -R pulse/src
+
+      - name: Generate Android scaffold
+        run: flutter create app --project-name pulse --org com.example --platforms android
+
+      - name: Add our code
+        run: |
           cp pulse/src/pubspec.yaml app/pubspec.yaml
           cp pulse/src/lib/main.dart app/lib/main.dart
-          cp pulse/src/MainActivity.kt app/android/app/src/main/kotlin/com/example/pulse/MainActivity.kt
           rm -rf app/test
+          find app/android/app/src/main -name "MainActivity.*" -delete
+          mkdir -p app/android/app/src/main/kotlin/com/example/pulse
+          cp pulse/src/MainActivity.kt app/android/app/src/main/kotlin/com/example/pulse/MainActivity.kt
           M=app/android/app/src/main/AndroidManifest.xml
           sed -i 's|<application|<uses-permission android:name="android.permission.VIBRATE"/>\n    <application|' $M
           sed -i 's|android:label="[^"]*"|android:label="Pulse"|' $M
+          cat $M
 
       - name: Build
         working-directory: app
