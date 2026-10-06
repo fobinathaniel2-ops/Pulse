@@ -25,6 +25,7 @@ jobs:
         run: |
           cp pulse/src/pubspec.yaml app/pubspec.yaml
           cp pulse/src/lib/main.dart app/lib/main.dart
+          sed -i "1i import 'package:flutter/services.dart';" app/lib/main.dart
           rm -rf app/test
           find app/android/app/src/main -name "MainActivity.*" -delete
           mkdir -p app/android/app/src/main/kotlin/com/example/pulse
@@ -32,7 +33,6 @@ jobs:
           M=app/android/app/src/main/AndroidManifest.xml
           sed -i 's|<application|<uses-permission android:name="android.permission.VIBRATE"/>\n    <application|' $M
           sed -i 's|android:label="[^"]*"|android:label="Pulse"|' $M
-          cat $M
 
       - name: Build
         working-directory: app
